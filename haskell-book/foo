@@ -1,0 +1,27 @@
+DO foo
+SPEAK foo
+DO bar
+HEAR foo -> DO bar
+HEAR foo -> DO baz
+
+DO foo
+DO (SPEAK foo)
+DO (HEAR foo (DO foo))
+DO bar
+
+foo
+bar
+foo
+
+PRESENT foo
+FUTURE bar
+PRESENT bar
+PRESENT baz
+
+Write a program that outputs this pattern: xyz
+
+NOW x
+NOW y
+NOW z
+
+
