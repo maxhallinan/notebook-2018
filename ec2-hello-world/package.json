@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "pm2 index.js",
+    "start": "pm2 start index.js --name ec2-hello-world",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
