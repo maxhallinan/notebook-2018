@@ -10,7 +10,7 @@ const WebSocket = require(`ws`);
 // app.listen(3000, () => {
 //   console.log(`server running on port 3000`);
 // });
-const server = WebSocket.Server({ 
+const server = new WebSocket.Server({ 
   host: '0.0.0.0',
   port: 3000, 
 });
