@@ -6,7 +6,6 @@ app.get(`/`, (req, res) => {
   res.send(`hello world!`);
 });
 
-const port = Number(process.env.HELLO_WORLD_PORT) || 3000;
-app.listen(port, () => {
-  console.log(`server running on port ${port}`);
+app.listen(3000, () => {
+  console.log(`server running on port 3000`);
 });
