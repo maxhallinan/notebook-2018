@@ -1,28 +1,26 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+// import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 import * as RxJs from 'rxjs';
 import { map, scan } from 'rxjs/operators';
 import dagre from 'dagre';
 
-ReactDOM.render(<App />, document.getElementById('root'));
-registerServiceWorker();
 
-const tick$ = RxJs.timer(0, 1000);
-console.log(tick$);
-console.log(tick$.constructor.name);
-console.log(tick$._subscribe.toString());
-const mappedTick$ = tick$.pipe(map(x => x));
-console.log(mappedTick$);
-console.log(mappedTick$.operator.constructor.name);
-const scannedTick$ = mappedTick$.pipe(scan(x => x, 0));
-console.log(scannedTick$);
-console.log(scannedTick$.operator.constructor.name);
-const mergedTick$ = RxJs.combineLatest(tick$, scannedTick$);
-console.log(mergedTick$);
-console.log('foo')
+// const tick$ = RxJs.timer(0, 1000);
+// console.log(tick$);
+// console.log(tick$.constructor.name);
+// console.log(tick$._subscribe.toString());
+// const mappedTick$ = tick$.pipe(map(x => x));
+// console.log(mappedTick$);
+// console.log(mappedTick$.operator.constructor.name);
+// const scannedTick$ = mappedTick$.pipe(scan(x => x, 0));
+// console.log(scannedTick$);
+// console.log(scannedTick$.operator.constructor.name);
+// const mergedTick$ = RxJs.combineLatest(tick$, scannedTick$);
+// console.log(mergedTick$);
+// console.log('foo')
 
 /*
 - do i have enough information to dynamically build a graph of streams?
@@ -116,9 +114,9 @@ function createNode(node, graph) {
   graph.setNode(
     node.id,
     {
-      height: 100,
+      height: 75,
       label: node.label,
-      width: 100,
+      width: 75,
     }
   );
 
@@ -209,9 +207,65 @@ const edges = [
 ];
 
 const graph = new dagre.graphlib.Graph();
-graph.setGraph({});
+graph.setGraph({ rankdir: 'LR', });
 nodes.forEach((node) => createNode(node, graph));
 edges.forEach((edge) => createEdge(edge, graph));
 const graphLayout = dagre.layout(graph);
-graph.nodes().forEach((n) => console.log({ n: graph.node(n), }));
-graph.edges().forEach((e) => console.log({ e: graph.edge(e), }));
+// graph.nodes().forEach((n) => console.log({ n: graph.node(n), }));
+// graph.edges().forEach((e) => console.log({ e: graph.edge(e), }));
+
+function Node(props, key) {
+  const { node, } = props;
+  const x = node.x - (node.width / 2);
+  const y = node.y - (node.height / 2);
+
+  return (
+    <g>
+      <rect 
+        fill="transparent"
+        height={node.height}
+        key={key}
+        stroke="black"
+        strokeWidth="1.25px"
+        width={node.width}
+        x={x}
+        y={y}
+      />
+      <text x={x} y={node.y}>{node.label}</text>
+    </g>
+  );
+}
+
+function Edge(props, key) {
+  const { edge, } = props;
+  const { points, } = edge;
+  const [ point1, ...restPoints ] = points;
+  const pathStart = `M${point1.x} ${point1.y}`;
+  const pathRest = restPoints.map((point) => `L${point.x} ${point.y}`).join(``);
+  const d = `${pathStart}${pathRest}`;
+  console.log('rendering');
+  return (
+    <path 
+      key={key}
+      strokeWidth="1.25px" 
+      d={d}
+      stroke="black" 
+      fill="transparent" 
+    />
+  );
+}
+
+function App(props) {
+  const { graph, } = props;
+  const edges = graph.edges().map((edge) => graph.edge(edge));
+  const nodes = graph.nodes().map((node) => graph.node(node));
+
+  return (
+    <svg width="100%" height="2000px">
+      {edges.map((edge) => <Edge edge={edge} />)}
+      {nodes.map((node) => <Node height={100} width={100} node={node} />)}
+    </svg>
+  );
+}
+
+ReactDOM.render(<App graph={graph} />, document.getElementById('root'));
