@@ -3,10 +3,9 @@ import ReactDOM from 'react-dom';
 import './index.css';
 // import App from './App';
 import registerServiceWorker from './registerServiceWorker';
-import * as RxJs from 'rxjs';
+import * as Rx from 'rxjs';
 import { map, scan } from 'rxjs/operators';
 import dagre from 'dagre';
-
 
 // const tick$ = RxJs.timer(0, 1000);
 // console.log(tick$);
@@ -110,13 +109,25 @@ to render the graph
 - draw the nodes at those positions
 */
 
+/*
+- see the behavior of the system
+- see the entire state of the system across all the variables all at once
+to be able to make comparisons, recognize things
+- we need to be able to adjust the system, see how the behavior responds
+- make associations between what we're changing and how the behavior responds
+- we need multiple representations of the system, looking at the behavior in 
+  different ways through different lenses
+- we need to not just see the behavior but interact with it, measuring it, 
+  searching it
+- code doesn't matter - it's what the code is doing
+*/
 function createNode(node, graph) {
   graph.setNode(
     node.id,
     {
-      height: 75,
+      height: 40,
       label: node.label,
-      width: 75,
+      width: 60,
     }
   );
 
@@ -214,10 +225,12 @@ const graphLayout = dagre.layout(graph);
 // graph.nodes().forEach((n) => console.log({ n: graph.node(n), }));
 // graph.edges().forEach((e) => console.log({ e: graph.edge(e), }));
 
+const PADDING = 20;
+
 function Node(props, key) {
   const { node, } = props;
-  const x = node.x - (node.width / 2);
-  const y = node.y - (node.height / 2);
+  const x = node.x - (node.width / 2) + PADDING;
+  const y = node.y - (node.height / 2) + PADDING;
 
   return (
     <g>
@@ -231,7 +244,7 @@ function Node(props, key) {
         x={x}
         y={y}
       />
-      <text x={x} y={node.y}>{node.label}</text>
+      <text fontSize="10" x={x} y={y - 5}>{node.label}</text>
     </g>
   );
 }
@@ -240,10 +253,9 @@ function Edge(props, key) {
   const { edge, } = props;
   const { points, } = edge;
   const [ point1, ...restPoints ] = points;
-  const pathStart = `M${point1.x} ${point1.y}`;
-  const pathRest = restPoints.map((point) => `L${point.x} ${point.y}`).join(``);
+  const pathStart = `M${point1.x + PADDING} ${point1.y + PADDING}`;
+  const pathRest = restPoints.map((point) => `L${point.x + PADDING} ${point.y + PADDING}`).join(``);
   const d = `${pathStart}${pathRest}`;
-  console.log('rendering');
   return (
     <path 
       key={key}
@@ -261,11 +273,26 @@ function App(props) {
   const nodes = graph.nodes().map((node) => graph.node(node));
 
   return (
-    <svg width="100%" height="2000px">
-      {edges.map((edge) => <Edge edge={edge} />)}
-      {nodes.map((node) => <Node height={100} width={100} node={node} />)}
-    </svg>
+    <div style={{ width: "100%", maxWidth: "53.291em", padding: "20px"}}>
+      <div>
+        <label>Opened connections:</label>
+        <input type="number" />
+      </div>
+      <div>
+        <label>Closed connections:</label>
+        <input type="number" />
+      </div>
+      <svg width="100%" height="500px">
+        {edges.map((edge) => <Edge edge={edge} />)}
+        {nodes.map((node) => <Node height={100} width={100} node={node} />)}
+      </svg>
+    </div>
   );
 }
 
 ReactDOM.render(<App graph={graph} />, document.getElementById('root'));
+
+// click connect
+// click disconnect
+// need to vizualise the stream
+// could rewrite the whole thing as 
