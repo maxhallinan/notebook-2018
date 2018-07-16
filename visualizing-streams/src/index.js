@@ -125,9 +125,9 @@ function createNode(node, graph) {
   graph.setNode(
     node.id,
     {
-      height: 40,
+      height: 10,
       label: node.label,
-      width: 60,
+      width: 10,
     }
   );
 
@@ -135,6 +135,7 @@ function createNode(node, graph) {
 }
 
 function createEdge(edge, graph) {
+  console.log({ edge, });
   graph.setEdge(
     edge.source,
     edge.target,
@@ -179,113 +180,180 @@ const nodes = [
 
 const edges = [
   {
-    label: "scan(addOne, 0)",
+    label: "connection$ -> connectionCount$",
     source: "connection$",
     target: "connectionCount$",
   }, {
-    label: "map(head)",
+    label: "connection$ -> socket$",
     source: "connection$",
     target: "socket$",
   }, {
-    label: "flatMap(toCloses)",
+    label: "socket$ -> close$",
     source: "socket$",
     target: "close$",
   }, {
-    label: "scan(addOne, 0)",
+    label: "close$ -> closeCount$",
     source: "close$",
     target: "closeCount$",
   }, {
-    label: "combineLatest",
+    label: "connectionCount$ -> combinedCount$",
     source: "connectionCount$",
     target: "combinedCount$"
   }, {
-    label: "combineLatest",
+    label: "closeCount$ -> combinedCount$",
     source: "closeCount$",
     target: "combinedCount$"
   }, {
-    label: "map(subtract)",
+    label: "combinedCount$ -> currentCount$",
     source: "combinedCount$",
     target: "currentCount$",
   }, {
-    label: "map(isPaused)",
+    label: "currentCount$ -> pause$",
     source: "currentCount$",
     target: "pause$",
   }, {
-    label: "switchMap(toTicks)",
+    label: "pause$ -> tick$",
     source: "pause$",
     target: "tick$",
   },
 ];
 
 const graph = new dagre.graphlib.Graph();
-graph.setGraph({ rankdir: 'LR', });
+graph.setGraph({
+  ranksep: 40,
+  nodesep: 10,
+});
+// graph.setGraph({ rankdir: 'LR', });
 nodes.forEach((node) => createNode(node, graph));
 edges.forEach((edge) => createEdge(edge, graph));
 const graphLayout = dagre.layout(graph);
 // graph.nodes().forEach((n) => console.log({ n: graph.node(n), }));
 // graph.edges().forEach((e) => console.log({ e: graph.edge(e), }));
 
-const PADDING = 20;
+// const PADDING = 20;
+const PADDING = 1;
+
+const addFiftyToNodeYCoord = [
+  'connectionCount$',
+  'combinedCount$',
+  'currentCount$',
+  'pause$',
+  'tick$',
+];
 
 function Node(props, key) {
   const { node, } = props;
-  const x = node.x - (node.width / 2) + PADDING;
-  const y = node.y - (node.height / 2) + PADDING;
+  const x = node.x + PADDING;
+  console.log(node);
+  const y = addFiftyToNodeYCoord.indexOf(node.label) > -1
+    ? node.y + 50 + PADDING 
+    : node.y + PADDING;
 
   return (
     <g>
-      <rect 
-        fill="transparent"
-        height={node.height}
-        key={key}
-        stroke="black"
-        strokeWidth="1.25px"
-        width={node.width}
-        x={x}
-        y={y}
+      <path
+        strokeWidth="1.25px" 
+        d={`M${40} ${y}L${745} ${y}`}
+        stroke="black" 
+        fill="transparent" 
       />
-      <text fontSize="10" x={x} y={y - 5}>{node.label}</text>
+      <polygon
+        points={`${740},${y-5} ${740},${y+5} ${746},${y}`}
+      />
+      <text fontSize="10" x={750} y={y + 3}>{node.label}</text>
+      <circle 
+        fill="white"
+        stroke="#333"
+        strokeWidth="1.25px"
+        cx={x} 
+        cy={y} 
+        r={node.width / 2}
+      />
     </g>
   );
+
+  // return (
+  //   <g>
+  //     <rect 
+  //       fill="transparent"
+  //       height={node.height}
+  //       key={key}
+  //       stroke="black"
+  //       strokeWidth="1.25px"
+  //       width={node.width}
+  //       x={x}
+  //       y={y}
+  //     />
+  //     <text fontSize="10" x={x} y={y - 5}>{node.label}</text>
+  //   </g>
+  // );
 }
+
+const addFiftyToEdgeYCoord = [
+  'connection$ -> connectionCount$',
+  'connectionCount$ -> combinedCount$',
+  'closeCount$ -> combinedCount$',
+  'combinedCount$ -> currentCount$',
+  'currentCount$ -> pause$',
+  'pause$ -> tick$',
+];
+
 
 function Edge(props, key) {
   const { edge, } = props;
-  const { points, } = edge;
-  const [ point1, ...restPoints ] = points;
+  let { points, } = edge;
+  let [ point1, ...restPoints ] = points;
+  // if (addFiftyToEdgeYCoord.indexOf(edge.label) > -1) {
+  //   restPoints = restPoints.map(p => ({ ...p, y: p.y + 50, }));
+  // }
   const pathStart = `M${point1.x + PADDING} ${point1.y + PADDING}`;
   const pathRest = restPoints.map((point) => `L${point.x + PADDING} ${point.y + PADDING}`).join(``);
-  const d = `${pathStart}${pathRest}`;
+  const extraPoint = addFiftyToEdgeYCoord.indexOf(edge.label) > -10 
+    ? `L${restPoints[restPoints.length - 1].x + PADDING} ${restPoints[restPoints.length - 1].y + PADDING + 50}`
+    : ``;
+  const d = `${pathStart}${pathRest}${extraPoint}`;
   return (
-    <path 
-      key={key}
-      strokeWidth="1.25px" 
-      d={d}
-      stroke="black" 
-      fill="transparent" 
-    />
+    <g key={key}>
+      <path 
+        strokeWidth="1.25px" 
+        d={d}
+        stroke="black" 
+        fill="transparent" 
+      />
+    </g>
   );
 }
 
 function App(props) {
   const { graph, } = props;
-  const edges = graph.edges().map((edge) => graph.edge(edge));
+  // const nodes = graph.nodes().map((node) => graph.node(node));
+  const edges = graph.edges().map((edge) => {
+    const e = graph.edge(edge);
+    const sourceN = graph.node(edge.v);
+    const targetN = graph.node(edge.w);
+    const points = e.points.slice(1, e.points.length-1);
+    // const [ pHead, ...tailPoints ] = e.points;
+    // const [ ...middlePoints, pTail ] = tailPoints;
+    return {
+      ...e,
+      points: [ 
+        { x: sourceN.x, y: sourceN.y, }, 
+        ...points, 
+        { x: targetN.x, y: targetN.y, } 
+      ],
+    };
+  });
+  
   const nodes = graph.nodes().map((node) => graph.node(node));
 
   return (
     <div style={{ width: "100%", maxWidth: "53.291em", padding: "20px"}}>
-      <div>
-        <label>Opened connections:</label>
-        <input type="number" />
-      </div>
-      <div>
-        <label>Closed connections:</label>
-        <input type="number" />
-      </div>
       <svg width="100%" height="500px">
         {edges.map((edge) => <Edge edge={edge} />)}
         {nodes.map((node) => <Node height={100} width={100} node={node} />)}
       </svg>
+      <button>Connect</button>
+      <button>Disconnect</button>
     </div>
   );
 }
