@@ -231,7 +231,7 @@ const graphLayout = dagre.layout(graph);
 // graph.edges().forEach((e) => console.log({ e: graph.edge(e), }));
 
 // const PADDING = 20;
-const PADDING = 1;
+const PADDING = 0;
 
 const addFiftyToNodeYCoord = [
   'connectionCount$',
@@ -245,9 +245,10 @@ function Node(props, key) {
   const { node, } = props;
   const x = node.x + PADDING;
   console.log(node);
-  const y = addFiftyToNodeYCoord.indexOf(node.label) > -1
-    ? node.y + 50 + PADDING 
-    : node.y + PADDING;
+  // const y = addFiftyToNodeYCoord.indexOf(node.label) > -1
+  //   ? node.y + 50 + PADDING 
+  //   : node.y + PADDING;
+  const y = node.y;
 
   return (
     <g>
@@ -261,6 +262,14 @@ function Node(props, key) {
         points={`${740},${y-5} ${740},${y+5} ${746},${y}`}
       />
       <text fontSize="10" x={750} y={y + 3}>{node.label}</text>
+      <circle 
+        fill="#333"
+        stroke="#333"
+        strokeWidth="1.25px"
+        cx={x + 100} 
+        cy={y} 
+        r={5 / 2}
+      />
       <circle 
         fill="white"
         stroke="#333"
@@ -308,10 +317,10 @@ function Edge(props, key) {
   // }
   const pathStart = `M${point1.x + PADDING} ${point1.y + PADDING}`;
   const pathRest = restPoints.map((point) => `L${point.x + PADDING} ${point.y + PADDING}`).join(``);
-  const extraPoint = addFiftyToEdgeYCoord.indexOf(edge.label) > -10 
-    ? `L${restPoints[restPoints.length - 1].x + PADDING} ${restPoints[restPoints.length - 1].y + PADDING + 50}`
-    : ``;
-  const d = `${pathStart}${pathRest}${extraPoint}`;
+  // const extraPoint = addFiftyToEdgeYCoord.indexOf(edge.label) > -10 
+  //   ? `L${restPoints[restPoints.length - 1].x + PADDING} ${restPoints[restPoints.length - 1].y + PADDING + 50}`
+  //   : ``;
+  const d = `${pathStart}${pathRest}`;
   return (
     <g key={key}>
       <path 
@@ -327,28 +336,185 @@ function Edge(props, key) {
 function App(props) {
   const { graph, } = props;
   // const nodes = graph.nodes().map((node) => graph.node(node));
-  const edges = graph.edges().map((edge) => {
-    const e = graph.edge(edge);
-    const sourceN = graph.node(edge.v);
-    const targetN = graph.node(edge.w);
-    const points = e.points.slice(1, e.points.length-1);
-    // const [ pHead, ...tailPoints ] = e.points;
-    // const [ ...middlePoints, pTail ] = tailPoints;
-    return {
-      ...e,
-      points: [ 
-        { x: sourceN.x, y: sourceN.y, }, 
-        ...points, 
-        { x: targetN.x, y: targetN.y, } 
+  // const edges = graph.edges().map((edge) => {
+  //   const e = graph.edge(edge);
+  //   const sourceN = graph.node(edge.v);
+  //   const targetN = graph.node(edge.w);
+  //   const points = e.points.slice(1, e.points.length-1);
+  //   // const [ pHead, ...tailPoints ] = e.points;
+  //   // const [ ...middlePoints, pTail ] = tailPoints;
+  //   return {
+  //     ...e,
+  //     points: [ 
+  //       { x: sourceN.x, y: sourceN.y, }, 
+  //       ...points, 
+  //       { x: targetN.x, y: targetN.y, } 
+  //     ],
+  //   };
+  // });
+  // const nodes = graph.nodes().map((node) => graph.node(node));
+  const nodes = [
+    {
+      label: 'connection$',
+      height: 10,
+      width: 10,
+      x: 20,
+      y: 10,
+    }, {
+      label: 'socket$',
+      height: 10,
+      width: 10,
+      x: 30,
+      y: 50,
+    }, {
+      label: 'close$',
+      height: 10,
+      width: 10,
+      x: 30,
+      y: 90,
+    }, {
+      label: 'closeCount$',
+      height: 10,
+      width: 10,
+      x: 30,
+      y: 130,
+    }, {
+      label: 'connectionCount$',
+      height: 10,
+      width: 10,
+      x: 10,
+      y: 170,
+    }, {
+      label: 'combinedCount$',
+      height: 10,
+      width: 10,
+      x: 20,
+      y: 210,
+    }, {
+      label: 'currentCount$',
+      height: 10,
+      width: 10,
+      x: 20,
+      y: 250,
+    }, {
+      label: 'pause$',
+      height: 10,
+      width: 10,
+      x: 20,
+      y: 290,
+    }, {
+      label: 'tick$',
+      height: 10,
+      width: 10,
+      x: 20,
+      y: 330,
+    }
+  ];
+
+  const edges = [
+    { 
+      points: [
+        {
+          x: 20,
+          y: 10,
+        }, {
+          x: 10,
+          y: 50,
+        }, {
+          x: 10,
+          y: 170,
+        },
       ],
-    };
-  });
+    }, { 
+      points: [
+        {
+          x: 20,
+          y: 10,
+        }, {
+          x: 30,
+          y: 50,
+        }
+      ],
+    }, { 
+      points: [
+        {
+          x: 30,
+          y: 50,
+        }, {
+          x: 30,
+          y: 90,
+        }
+      ],
+    }, { 
+      points: [
+        {
+          x: 30,
+          y: 90,
+        }, {
+          x: 30,
+          y: 130,
+        }
+      ],
+    }, {
+      points: [
+        {
+          x: 30,
+          y: 130,
+        }, {
+          x: 30,
+          y: 170,
+        }, {
+          x: 20,
+          y: 210,
+        }
+      ]
+    }, {
+      points: [
+        {
+          x: 10,
+          y: 170,
+        }, {
+          x: 20,
+          y: 210,
+        }
+      ]
+    }, {
+      points: [
+        {
+          x: 20,
+          y: 210,
+        }, {
+          x: 20,
+          y: 250,
+        }
+      ]
+    }, {
+      points: [
+        {
+          x: 20,
+          y: 250,
+        }, {
+          x: 20,
+          y: 290,
+        }
+      ]
+    }, {
+      points: [
+        {
+          x: 20,
+          y: 290,
+        }, {
+          x: 20,
+          y: 330,
+        }
+      ]
+    },
+  ];
   
-  const nodes = graph.nodes().map((node) => graph.node(node));
 
   return (
     <div style={{ width: "100%", maxWidth: "53.291em", padding: "20px"}}>
-      <svg width="100%" height="500px">
+      <svg width="100%" height="340px">
         {edges.map((edge) => <Edge edge={edge} />)}
         {nodes.map((node) => <Node height={100} width={100} node={node} />)}
       </svg>
