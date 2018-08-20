@@ -1,4 +1,5 @@
 module C9 where
+import Prelude
 
 head' :: [a] -> Maybe a
 head' [] = Nothing
@@ -34,3 +35,10 @@ eftOrd start stop = go (succ start) stop (start : [])
           | next == x = (next : x : xs)
           | otherwise =
               go (succ next) sp (next : x : xs)
+
+enumFromTo' :: (Ord a, Enum a) => a -> a -> [a]
+enumFromTo' start stop = go stop start []
+  where go current start result
+          | current == start = current : result
+          | otherwise =
+              go (pred current) start (current : result)
