@@ -2,6 +2,20 @@ module Cipher where
 
 import qualified Data.Char
 
+-- better solution: https://codereview.stackexchange.com/questions/158663/caesar-and-vigen%C3%A8re-ciphers-in-haskell-the-simple-way
+caesar :: Int -> String -> String
+caesar n = map helper
+  where
+    helper ' ' = ' ' 
+    -- 1. lower case character
+    -- 2. get ord of character
+    -- 3. reduce ord of character by "base" + number of characters to shift
+    -- 4. modulo the result by 26
+    -- 5. add the base
+    -- 6. transform number to character to get shifted character
+    helper c   = chr $ (ord (toLower c) - base + n) `mod` 26  + base
+    base       = ord 'a'
+
 chars = ['A'..'Z'] ++ ['a'..'z']
 
 charOrds = fmap Data.Char.ord chars
@@ -30,3 +44,5 @@ rightShift place char
 
 rightCaesar :: Int -> String -> String
 rightCaesar shift source = fmap (rightShift shift) source
+
+
