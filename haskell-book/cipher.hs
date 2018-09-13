@@ -44,5 +44,3 @@ rightShift place char
 
 rightCaesar :: Int -> String -> String
 rightCaesar shift source = fmap (rightShift shift) source
-
-
