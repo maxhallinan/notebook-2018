@@ -3,7 +3,7 @@ module C18 where
 import qualified Test.QuickCheck as QuickCheck
 import qualified Test.QuickCheck.Checkers as Checkers
 import qualified Test.QuickCheck.Classes as QuickCheck.Classes
-import qualified Control.Monad
+import Control.Monad ((>=>), join)
 
 -- Chapter exercises
 
@@ -109,7 +109,49 @@ instance (QuickCheck.Arbitrary a) => QuickCheck.Arbitrary (List a) where
 instance Eq a => Checkers.EqProp (List a) where
   (=-=) = Checkers.eq
 
--- Test values
+j :: Monad m => m (m a) -> m a
+j x = x >>= id
+
+l1 :: Monad m => (a -> b) -> m a -> m b
+l1 = fmap
+
+l2 :: Monad m => (a -> b -> c) -> m a -> m b -> m c
+l2 f x1 x2 = pure f <*> x1 <*> x2
+
+a :: Monad m => m a -> m (a -> b) -> m b
+a = flip (<*>)
+
+meh :: Monad m => [a] -> (a -> m b) -> m [b]
+meh [] _ = return []
+meh (x : xs) f = do
+  -- expose b in m b
+  y <- f x
+  -- meh xs f returns m [b]
+  -- to get at [b], use fmap
+  -- fmap preserves the structure m
+  -- while allowing you to add `y` to the front of the list
+  fmap ((:) y) (meh xs f)
+  -- the above is equivalent to this: 
+  -- f x >>= (\y -> fmap ((:) y) $ meh xs f)
+  -- (f x :: m b) >>= (\(y :: b) -> fmap (\(xs :: [b]) -> y : xs) (meh xs f :: m [b]))
+  -- First solution:
+  -- return (<>) <*> y <*> rest
+  -- where
+  --   y = (f x) >>= (\y -> return [y])
+  --   rest = meh xs f
+
+flipType :: Monad m => [m a] -> m [a]
+flipType = (flip meh) id
+-- First solution:
+-- flipType [] = return []
+-- flipType (x : xs) = 
+--   return (<>) <*> y <*> rest
+--   where
+--     toY = (\x' -> return [x']) >=> (\xs' -> meh xs' return)
+--     y = x >>= toY
+--     rest = flipType xs
+
+-- Tests
 
 result = undefined :: Result Int (Int, Int, Int)
 identity' = undefined :: Identity (Int, Int, Int)
