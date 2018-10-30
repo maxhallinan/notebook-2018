@@ -141,6 +141,35 @@ instance (QuickCheck.Arbitrary a, QuickCheck.Arbitrary b) => QuickCheck.Arbitrar
 instance (Eq a, Eq b) => Checkers.EqProp (Bigger a b) where
   (=-=) = eq
 
+-- 8. Tree
+
+data Tree a = Empty | Leaf a | Node (Tree a) a (Tree a) deriving (Eq, Show)
+
+instance Functor Tree where
+  fmap _ Empty                = Empty
+  fmap f (Leaf x)             = Leaf $ f x
+  fmap f (Node left x right)  = Node (fmap f left) (f x) (fmap f right)
+
+instance Foldable Tree where
+  foldMap _ Empty               = mempty
+  foldMap f (Leaf x)            = f x
+  foldMap f (Node left x right) = (foldMap f left) <> f x <> (foldMap f right)
+
+instance Traversable Tree where
+  traverse _ Empty               = pure Empty
+  traverse f (Leaf x)            = fmap Leaf $ f x
+  traverse f (Node left x right) = 
+    pure Node <*> (traverse f left) <*> (f x) <*> (traverse f right)
+  
+instance QuickCheck.Arbitrary a => QuickCheck.Arbitrary (Tree a) where
+  arbitrary = do
+    x <- arbitrary
+    y <- arbitrary
+    return $ Node (Leaf x) y Empty
+
+instance Eq a => Checkers.EqProp (Tree a) where
+  (=-=) = eq
+
 -- Tests
 
 optionalTrigger :: Optional (Int, Int, [Int])
@@ -158,6 +187,9 @@ bigTrigger = undefined
 biggerTrigger :: Bigger String (Int, Int, [Int])
 biggerTrigger = undefined
 
+treeTrigger :: Tree (Int, Int, [Int])
+treeTrigger = undefined
+
 runTests :: IO ()
 runTests = do
   Checkers.quickBatch $ Classes.traversable optionalTrigger
@@ -165,3 +197,4 @@ runTests = do
   Checkers.quickBatch $ Classes.traversable pairTrigger
   Checkers.quickBatch $ Classes.traversable bigTrigger
   Checkers.quickBatch $ Classes.traversable biggerTrigger
+  Checkers.quickBatch $ Classes.traversable treeTrigger

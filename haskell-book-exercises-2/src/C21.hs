@@ -1,5 +1,10 @@
 module C21 where
 
+import Control.Applicative
+import Test.QuickCheck as QuickCheck
+import Test.QuickCheck.Checkers as Checkers
+import Test.QuickCheck.Classes as Classes
+
 -- class (Functor t, Foldable t) => Traversable t where
 --   -- `traverse` maps each value in a structure to an action, evaluates the 
 --   -- action from left to right, and collects the results
@@ -109,30 +114,108 @@ instance Foldable Identity' where
 instance Traversable Identity' where
   traverse f (Identity' x) = fmap Identity' $ f x
 
-instance Arbitrary a => Arbitrary (Identity' a) where
+instance QuickCheck.Arbitrary a => QuickCheck.Arbitrary (Identity' a) where
   arbitrary = do
     a <- arbitrary
     return $ Identity' a
 
-instance Eq a => EqProp (Identity' a) where
+instance Eq a => Checkers.EqProp (Identity' a) where
   (=-=) = eq
-
-trigger1 :: Identity' (Int, Int, [Int])
-trigger1 = undefined
-
-runTests :: IO ()
-runTests = do
-  Checkers.quickBatch $ Classes.traversable trigger1
 
 -- Traversable Instances
 -- 2. Constant
 
-newtype Constant a b = Constant { getConstant :: a }
+newtype Constant a b = Constant { getConstant :: a } deriving (Eq, Show)
 
 instance Functor (Constant a) where
-  fmap _ x = x 
+  fmap _ (Constant x) = Constant x
 
-instance Applicative (Constant a) where
-  pure = Constant
-  (<*>) _ x = x
+-- instance Applicative (Constant a) where
+--   pure = Constant
+--   (<*>) _ x = x
 
+-- 3. Maybe
+--
+data Optional a = Nada | Yep a deriving (Eq, Ord, Show)
+
+instance Functor Optional where
+  fmap _ Nada = Nada
+  fmap f (Yep x) = Yep $ f x
+
+instance Applicative Optional where
+  pure x = Yep x
+  (<*>) _ Nada = Nada
+  (<*>) Nada _ = Nada
+  (<*>) (Yep f) (Yep x) = Yep $ f x
+
+instance Foldable Optional where
+  foldr _ y Nada = y
+  foldr f y (Yep x) = f x y
+
+instance Traversable Optional where
+  traverse f (Yep x) = fmap Yep $ f x 
+
+instance Arbitrary a => QuickCheck.Arbitrary (Optional a) where
+  arbitrary = do
+    x <- QuickCheck.arbitrary
+    return $ Yep x
+
+instance Eq a => Checkers.EqProp (Optional a) where
+  (=-=) = eq
+
+-- 4. List
+
+data List a = Nil | Cons a (List a) deriving (Eq, Show)
+
+instance Functor List where
+  fmap f Nil = Nil
+  fmap f (Cons x xs) = Cons (f x) (fmap f xs)
+
+instance Semigroup (List a) where
+  (<>) xs Nil = xs
+  (<>) Nil ys = ys
+  (<>) (Cons x xs) ys = Cons x (xs <> ys)
+
+instance Monoid (List a) where
+  mempty = Nil
+
+instance Applicative List where
+  pure x = Cons x Nil
+  (<*>) Nil _ = Nil
+  (<*>) _ Nil = Nil
+  (<*>) (Cons f fs) (Cons x xs) = 
+    (Cons (f x) (fmap f xs)) <> (fs <*> (Cons x xs))
+
+instance Foldable List where
+  foldr f y Nil = y
+  foldr f y (Cons x xs) = foldr f (f x y) xs
+
+instance Traversable List where
+  traverse _ Nil          = pure Nil
+  traverse f (Cons x xs)  = liftA2 Cons (f x) (traverse f xs)
+  -- pure (<>) <*> fmap pure (f x) <*> (traverse f xs)
+
+instance QuickCheck.Arbitrary a => QuickCheck.Arbitrary (List a) where
+  arbitrary = do
+    a <- arbitrary
+    return $ pure a
+
+instance Eq a => Checkers.EqProp (List a) where
+  (=-=) = eq
+
+-- Tests 
+
+trigger1 :: Identity' (Int, Int, [Int])
+trigger1 = undefined
+
+trigger3 :: Optional (Int, Int, [Int])
+trigger3 = undefined
+
+trigger4 :: List (Int, Int, [Int])
+trigger4 = undefined
+
+runTests :: IO ()
+runTests = do
+  Checkers.quickBatch $ Classes.traversable trigger1
+  Checkers.quickBatch $ Classes.traversable trigger3
+  Checkers.quickBatch $ Classes.traversable trigger4
