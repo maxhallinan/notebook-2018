@@ -1,7 +1,10 @@
+{-# Language InstanceSigs #-}
+
 module C23 where
 
-import Control.Applicative (liftA3)
+import Control.Applicative (liftA2, liftA3)
 import Control.Monad.Trans.State
+import Control.Monad
 import System.Random
 
 -- State :: (s -> (a, s)) -> State s a
@@ -63,6 +66,37 @@ rollDie2 = intToDie <$> state (randomR (1,6))
 
 infiniteDie :: State StdGen [Die]
 infiniteDie = repeat <$> rollDie2
+
+-- (rollsToGetTwenty . mkStdGen) <$> randomIO
+rollsToGetTwenty :: StdGen -> Int
+rollsToGetTwenty g = go 0 0 g
+  where
+    go :: Int -> Int -> StdGen -> Int
+    go sum count gen
+      | sum >= 20 = count
+      | otherwise =
+          let (die, nextGen) = randomR (1,6) gen
+          in go (sum + die) (count + 1) nextGen
+
+rollsToGetN :: Int -> StdGen -> Int
+rollsToGetN limit g = go 0 0 g
+  where
+    go :: Int -> Int -> StdGen -> Int
+    go sum count gen
+      | sum >= limit = count
+      | otherwise =
+          let (die, nextGen) = randomR (1,6) gen
+          in go (sum + die) (count + 1) nextGen
+
+rollsCountLogged :: Int -> StdGen -> [Die]
+rollsCountLogged limit g = go 0 [] g
+  where
+    go :: Int -> [Die] -> StdGen -> [Die]
+    go sum rolls gen
+      | sum >= limit = rolls
+      | otherwise =
+          let (die, nextGen) = randomR (1,6) gen
+          in go (sum + die) (intToDie die : rolls) nextGen
 
 
 -- foo :: Int -> Int -> Maybe Int
@@ -167,3 +201,59 @@ sumIsIsomorphicWithItsContents = (Sum, getSum)
 -- Is not an isomorphism: (a -> Maybe b, b -> Maybe a)
 -- if you go from a -> Nothing, there is no way to get back to a. the information
 -- in a is lost
+
+
+newtype Moi s a = Moi { runMoi :: s -> (a, s) }
+
+instance Functor (Moi s) where
+  fmap f (Moi g) = Moi $ do
+    (x, s) <- g
+    return (f x, s)
+
+instance Applicative (Moi s) where
+  pure x = Moi (\s -> (x, s))
+
+  (<*>) (Moi a1) (Moi a2) = Moi $ \s ->
+    let (f, _) = a1 s -- a1 :: s -> ((a -> b), s)
+        (x, _) = a2 s -- a2 :: s -> (a, s)
+    in (f x, s)
+
+instance Monad (Moi s) where
+  return = pure
+  
+  (>>=) :: Moi s a -> (a -> Moi s b) -> Moi s b
+  -- (>>=) f g = join $ pure g <*> f
+  -- (>>=) f g = join $ g <$> f
+  -- create a function that runs the two state dependent computations in sequence
+  (>>=) (Moi f) g = Moi $ \s ->
+    -- f :: s -> (a, s)
+    -- run the first state-dependent computation
+    let (x, s) = f s 
+    -- produce a second Moi with (g x)
+    -- run the computation in that second Moi
+    in runMoi (g x) s
+ 
+  -- (>>=) (Moi f1) f2 = Moi $ \ s ->
+  --   let x = fst $ f1 s
+  --       (Moi g) = f2 x
+  --   in g
+-- Moi $ \s ->
+--     let x = fst $ f s
+--         (Moi y) = g x
+--     in (y, s)
+
+
+get :: Moi s s
+get = Moi (\s -> (s, s))
+
+put :: s -> Moi s ()
+put s = Moi (\_ -> ((), s))
+
+exec :: Moi s a  -> s -> s
+exec (Moi sa) s = snd $ sa s
+
+eval :: Moi s a -> s -> a
+eval (Moi sa) s = fst $ sa s
+
+modify :: (s -> s) -> Moi s ()
+modify f = Moi $ \ s -> ((), f s)
