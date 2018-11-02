@@ -99,20 +99,20 @@ allThree = do
 -- Prerequisite knowledge
 -- - Parser has an instance of Monad
 -- - Parser has an intance of Monoid
-string' :: Parser String
-string' s = go s mempty
+-- string' :: Parser String
+-- string' s = go s mempty
   -- iterate over each character in the string
   -- the second argument to go is the parser result
   -- start with the mempty, in this case ""
-  where 
+  -- where 
     -- what does char x do?
     -- create a Parser Char for each character in the string
     -- run that Parser, append the char to the parsed string
     -- keep doing this until you hit the base case
-    go (x:xs) parsed = char x >>= (\x' -> go xs (parsed ++ [x']))
+    -- go (x:xs) parsed = char x >>= (\x' -> go xs (parsed ++ [x']))
     -- the base case
     -- this lifts the result of the parsing into the Parser monad
     -- parsed :: String
     -- return parsed :: Parser String
-    go [] parsed     = return parsed
+    -- go [] parsed     = return parsed
 

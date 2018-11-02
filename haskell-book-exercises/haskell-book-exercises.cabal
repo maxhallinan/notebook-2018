@@ -22,6 +22,7 @@ library
     , SkiFree
     , Comonad
     , ReaderPractice
+    , Parsing
   other-modules:
       Paths_foo
   hs-source-dirs:
@@ -35,4 +36,5 @@ library
     , transformers
     , trifecta
     , parsers
+    , optparse-applicative
   default-language: Haskell2010
