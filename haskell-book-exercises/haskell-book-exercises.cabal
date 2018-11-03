@@ -23,6 +23,7 @@ library
     , Comonad
     , ReaderPractice
     , Parsing
+    , FractionsParser
   other-modules:
       Paths_foo
   hs-source-dirs:

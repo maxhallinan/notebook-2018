@@ -116,3 +116,23 @@ allThree = do
     -- return parsed :: Parser String
     -- go [] parsed     = return parsed
 
+-- describes a string of integers 
+-- but this parser returns the result of eof, which is unit.
+parseFoo :: Parser ()
+parseFoo = integer >> eof
+
+-- to keep the integers but still enfoce eof, then use this:
+parseFoo' :: Parser Integer
+parseFoo' = do
+  n <- integer
+  _ <- eof
+  return n
+
+-- parseFoo' is equivalent to this:
+parseFoo'' :: Parser Integer
+parseFoo'' = integer >>= (\ n -> eof >> return n)
+
+foo :: IO ()
+foo = do
+  print $ parseString (parseFoo'') mempty "123"
+  print $ parseString (parseFoo'') mempty "123abc"
