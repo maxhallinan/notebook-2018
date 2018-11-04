@@ -25,6 +25,7 @@ library
     , Parsing
     , FractionsParser
     , C24Backtrack
+    , ParsingJson
   other-modules:
       Paths_foo
   hs-source-dirs:
@@ -45,4 +46,5 @@ library
     , bytestring
     , attoparsec
     , parsec
+    , aeson
   default-language: Haskell2010

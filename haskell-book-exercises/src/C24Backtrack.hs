@@ -51,3 +51,4 @@ testParsers = do
   runAttoparsecParser withBacktrackParser "13"
   runAttoparsecParser annotatedBacktraceParser "13"
   putStrLn ""
+
