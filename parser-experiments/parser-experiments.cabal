@@ -1,0 +1,41 @@
+name:                parser-experiments
+version:             0.1.0.0
+-- synopsis:
+-- description:
+homepage:            https://github.com/githubuser/parser-experiments#readme
+license:             BSD3
+license-file:        LICENSE
+author:              Author name here
+maintainer:          example@example.com
+copyright:           2018 Author name here
+category:            Web
+build-type:          Simple
+cabal-version:       >=1.10
+extra-source-files:  README.md
+
+library
+  exposed-modules:
+      Semver
+  other-modules:
+      Paths_foo
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+    , hspec
+    , QuickCheck
+    , checkers
+    , random
+    , transformers
+    , trifecta
+    , parsers
+    , optparse-applicative
+    , raw-strings-qq
+    , text
+    , containers
+    , bytestring
+    , attoparsec
+    , parsec
+    , aeson
+    , megaparsec
+  default-language:    Haskell2010
