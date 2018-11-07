@@ -43,10 +43,10 @@ type Parser = Parsec Void String
 -- 1.0.0-0.3.7, 1.0.0-x.7.z.92
 
 identifierParser :: Parser Identifier
-identifierParser = integerIdParser <|> stringIdParser
+identifierParser = try integerIdParser <|> stringIdParser
   where
     integerIdParser = (IntegerId . read) <$> some digitChar
-    stringIdParser  = StringId <$> some alphaNumChar
+    stringIdParser  = StringId <$> some (alphaNumChar <|> char '-')
 
 segmentParser :: Parser [Identifier]
 segmentParser = identifierParser `sepBy` dotParser
@@ -112,6 +112,6 @@ versionParser = do
 testParser :: IO ()
 testParser = do
   parseTest versionParser "1.0.0"
-  -- parseTest versionParser ".1.0.0."
+  parseTest versionParser ".1.0.0."
   parseTest versionParser "1.0.0-alpha"
   parseTest versionParser "1.0.0-alpha.beta.1"
