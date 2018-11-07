@@ -16,8 +16,9 @@ extra-source-files:  README.md
 library
   exposed-modules:
       Semver
-    , PositiveInteger
+    , Digit
     , IpV4
+    , PhoneNumber
   other-modules:
       Paths_foo
   hs-source-dirs:
