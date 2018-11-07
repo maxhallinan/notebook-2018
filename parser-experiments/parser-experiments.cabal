@@ -16,6 +16,8 @@ extra-source-files:  README.md
 library
   exposed-modules:
       Semver
+    , PositiveInteger
+    , IpV4
   other-modules:
       Paths_foo
   hs-source-dirs:
