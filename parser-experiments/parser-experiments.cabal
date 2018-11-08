@@ -19,6 +19,7 @@ library
     , Digit
     , IpV4
     , PhoneNumber
+    , Log
   other-modules:
       Paths_foo
   hs-source-dirs:
@@ -41,4 +42,5 @@ library
     , parsec
     , aeson
     , megaparsec
+    , time
   default-language:    Haskell2010
