@@ -19,6 +19,7 @@ library
     , C22
     , C23
     , C24
+    , C25
     , SkiFree
     , Comonad
     , ReaderPractice
