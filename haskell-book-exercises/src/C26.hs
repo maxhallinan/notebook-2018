@@ -1,6 +1,8 @@
 {-# LANGUAGE InstanceSigs #-}
 module C26 where
 
+newtype Identity a = Identity { runIdentity :: a } deriving (Eq, Show)
+
 newtype MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
 
 instance Functor f => Functor (MaybeT f) where
@@ -15,12 +17,12 @@ instance Applicative f => Applicative (MaybeT f) where
   -- (<*>) :: Applicative f => f (Maybe (a -> b)) -> f (Maybe a) -> f (Maybe b)
   -- (<*>) (MaybeT f) (MaybeT x)
 
-innerMost :: [Maybe (Identity (a -> b))] -> [Maybe (Identity a -> Identity b)]
-innerMost = (fmap . fmap) (<*>)
+-- innerMost :: [Maybe (Identity (a -> b))] -> [Maybe (Identity a -> Identity b)]
+-- innerMost = (fmap . fmap) (<*>)
 -- so now you have a structure of a structure containing a function that will call apply on a third structure
 
-second' :: [Maybe (Identity a -> Identity b)] -> [Maybe (Identity a) -> Maybe (Identity a)]
-second' = fmap (<*>)
+-- second' :: [Maybe (Identity a -> Identity b)] -> [Maybe (Identity a) -> Maybe (Identity a)]
+-- second' = fmap (<*>)
 
-final' :: [Maybe (Identity a) -> Maybe (Identity b)] -> [Maybe (Identity a)] -> [Maybe (Identity b)]
-final' = (<*>)
+-- final' :: [Maybe (Identity a) -> Maybe (Identity b)] -> [Maybe (Identity a)] -> [Maybe (Identity b)]
+-- final' = (<*>)

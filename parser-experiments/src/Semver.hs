@@ -43,10 +43,10 @@ type Parser = Parsec Void String
 -- 1.0.0-0.3.7, 1.0.0-x.7.z.92
 
 identifierParser :: Parser Identifier
-identifierParser = try integerIdParser <|> stringIdParser
+identifierParser = integerIdParser <|> stringIdParser
   where
-    integerIdParser = (IntegerId . read) <$> some digitChar
-    stringIdParser  = StringId <$> some (alphaNumChar <|> char '-')
+    integerIdParser = (IntegerId . read) <$> (someTill digitChar (char '.' <|> eof :: Parser Char))
+    stringIdParser  = StringId <$> (someTill (alphaNumChar <|> char '-') (char '.' <|> char ' '))
 
 segmentParser :: Parser [Identifier]
 segmentParser = identifierParser `sepBy` dotParser
