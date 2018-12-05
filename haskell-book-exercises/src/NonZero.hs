@@ -18,4 +18,4 @@ data NonEmpty a = a :| [a]
 
 nonEmpty :: [a] -> Maybe (NonEmpty a)
 nonEmpty []     = Nothing
-nonEmpty (x:xs) = x :| xs
+nonEmpty (x:xs) = Just (x :| xs)

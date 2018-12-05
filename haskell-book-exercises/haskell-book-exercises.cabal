@@ -14,20 +14,55 @@ extra-source-files:  README.md
 library
   exposed-modules:
       ApplicativeLaws
-    , ForAll
-    , C21
-    , C22
-    , C23
-    , C24
-    , C25
-    , C26
-    , SkiFree
+    , BadMonad
+    , C10A
+    , C11A
+    , C12A
+    , C14A
+    , C14B
+    , C16A
+    , C16B
+    , C16C
+    , C16D
+    , C16E
+    , C17A
+    , C17B
+    , C18A
+    , C18B
+    , C20A
+    , C20B
+    , C21A
+    , C21B
+    , C21C
+    , C22A
+    , C23A
+    , C24A
+    , C24B
+    , C25A
+    , C26A
+    , C3A
+    , C4A
+    , C5A
+    , C6A
+    , C6B
+    , C7A
+    , C8A
+    , C9A
+    , C9B
+    , C9C
+    , CipherA
+    , CipherB
     , Comonad
-    , ReaderPractice
-    , Parsing
+    , Database
+    , ForAll
     , FractionsParser
-    , C24Backtrack
+    , Laws
+    , Mathh
+    , NonZero
+    , Parsing
     , ParsingJson
+    , ReaderPractice
+    , SkiFree
   other-modules:
       Paths_foo
   hs-source-dirs:
@@ -49,4 +84,6 @@ library
     , attoparsec
     , parsec
     , aeson
+    , wreq
+    , time
   default-language: Haskell2010
