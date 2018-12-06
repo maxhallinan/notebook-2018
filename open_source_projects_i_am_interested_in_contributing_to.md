@@ -1,4 +1,0 @@
-- [beakerbrowser/beaker](https://github.com/beakerbrowser/beaker)
-- [datproject/dat](https://github.com/datproject/dat)
-- [beakerbrowser/hashbase](https://github.com/beakerbrowser/hashbase)
-- []()

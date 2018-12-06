@@ -5,6 +5,10 @@ Legend
 - `*`: favorite
 - `?`: not fully understood
 
+## Projects
+
+- [Dark Crystal: Back up your secrets using the trust in your social fabric](https://darkcrystal.pw/)
+
 ## Videos
 
 - [10 Things I Regret About Node.js](https://www.youtube.com/watch?v=M3BM9TB-8yA) by Ryan Dahl
